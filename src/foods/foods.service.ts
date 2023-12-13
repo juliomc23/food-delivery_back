@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateFoodDto } from './dto/create-food.dto';
 import { UpdateFoodDto } from './dto/update-food.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -10,23 +14,33 @@ export class FoodsService {
   constructor(
     @InjectRepository(Food) private readonly foodRepository: Repository<Food>,
   ) {}
-  create(createFoodDto: CreateFoodDto) {
-    return 'This action adds a new food';
+  async create(createFoodDto: CreateFoodDto) {
+    try {
+      const newFood = this.foodRepository.create(createFoodDto);
+      await this.foodRepository.save(newFood);
+    } catch (error) {
+      console.log(error);
+      throw new InternalServerErrorException('Something went wrong');
+    }
   }
 
-  findAll() {
-    return `This action returns all foods`;
+  async findAll() {
+    return await this.foodRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} food`;
+  async findOne(id: string) {
+    const findedFood = await this.foodRepository.findOneBy({ id });
+    if (!findedFood)
+      throw new NotFoundException(`The food with id ${id} was not found`);
+    return findedFood;
   }
 
-  update(id: number, updateFoodDto: UpdateFoodDto) {
+  update(id: number, _updateFoodDto: UpdateFoodDto) {
     return `This action updates a #${id} food`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} food`;
+  async remove(id: string) {
+    const findedFood = await this.findOne(id);
+    await this.foodRepository.remove(findedFood);
   }
 }

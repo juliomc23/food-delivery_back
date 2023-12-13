@@ -14,5 +14,5 @@ export class Food {
   @Column('numeric', {
     default: 0,
   })
-  price: string;
+  price: number;
 }
