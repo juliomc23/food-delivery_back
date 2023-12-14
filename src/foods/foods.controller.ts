@@ -6,10 +6,13 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { FoodsService } from './foods.service';
 import { CreateFoodDto } from './dto/create-food.dto';
 import { UpdateFoodDto } from './dto/update-food.dto';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
 
 @Controller('foods')
 export class FoodsController {
@@ -21,22 +24,25 @@ export class FoodsController {
   }
 
   @Get()
-  findAll() {
-    return this.foodsService.findAll();
+  findAll(@Query() paginationDto: PaginationDto) {
+    return this.foodsService.findAll(paginationDto);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.foodsService.findOne(id);
+  @Get(':param')
+  findOne(@Param('param') param: string) {
+    return this.foodsService.findOne(param);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateFoodDto: UpdateFoodDto) {
-    return this.foodsService.update(+id, updateFoodDto);
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateFoodDto: UpdateFoodDto,
+  ) {
+    return this.foodsService.update(id, updateFoodDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.foodsService.remove(id);
   }
 }
