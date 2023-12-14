@@ -15,6 +15,17 @@ Food delivery backend app build with [Nestjs](https://nestjs.com/)
 $ pnpm install
 ```
 
+## Launch docker compose to initialize postgres database
+
+After you launch this command you should copy the `.env.template` and rename it to `.env`
+<br/>
+
+<p><b>This file should be completed with his correct data.</b></p>
+
+```bash
+$ docker compose up -d
+```
+
 ## Running the app
 
 ```bash
