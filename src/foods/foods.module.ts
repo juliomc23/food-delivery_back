@@ -2,10 +2,10 @@ import { Module } from '@nestjs/common';
 import { FoodsService } from './foods.service';
 import { FoodsController } from './foods.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Food } from './entities/food.entity';
+import { Food, FoodImage } from './entities';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Food])],
+  imports: [TypeOrmModule.forFeature([Food, FoodImage])],
   controllers: [FoodsController],
   providers: [FoodsService],
 })
