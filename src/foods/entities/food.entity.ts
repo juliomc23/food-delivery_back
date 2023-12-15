@@ -8,6 +8,11 @@ export class Food {
   @Column('text')
   food_name: string;
 
+  @Column('text', {
+    nullable: true,
+  })
+  food_description: string;
+
   @Column('text')
   restaurant: string;
 
