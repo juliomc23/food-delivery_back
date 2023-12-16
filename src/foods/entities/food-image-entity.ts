@@ -1,4 +1,11 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { Food } from './food.entity';
 
 @Entity()
 export class FoodImage {
@@ -9,4 +16,8 @@ export class FoodImage {
     nullable: true,
   })
   url: string;
+
+  @OneToOne(() => Food, (food) => food.food_image)
+  @JoinColumn()
+  food: Food;
 }

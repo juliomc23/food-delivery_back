@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { FoodImage } from './food-image-entity';
 
 @Entity()
 export class Food {
@@ -12,6 +13,9 @@ export class Food {
     nullable: true,
   })
   food_description: string;
+
+  @OneToOne(() => FoodImage, (foodImage) => foodImage.food, { cascade: true })
+  food_image?: FoodImage;
 
   @Column('text')
   restaurant: string;
