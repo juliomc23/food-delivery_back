@@ -14,9 +14,15 @@ export class CreateFoodDto {
   @IsString()
   @IsOptional()
   food_description?: string;
+
+  @IsString()
+  @IsOptional()
+  food_image?: string;
+
   @IsString()
   @MinLength(4)
   restaurant: string;
+
   @IsNumber()
   @IsPositive()
   price: number;
