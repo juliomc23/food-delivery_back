@@ -12,9 +12,7 @@ export class FoodImage {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column('text', {
-    nullable: true,
-  })
+  @Column('text')
   url: string;
 
   @OneToOne(() => Food, (food) => food.food_image)
