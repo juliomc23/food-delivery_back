@@ -14,7 +14,10 @@ export class Food {
   })
   food_description: string;
 
-  @OneToOne(() => FoodImage, (foodImage) => foodImage.food, { cascade: true })
+  @OneToOne(() => FoodImage, (foodImage) => foodImage.food, {
+    cascade: true,
+    eager: true,
+  })
   food_image?: FoodImage;
 
   @Column('text')
