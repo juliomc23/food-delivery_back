@@ -7,19 +7,26 @@ import { CreateFoodDto } from './dto/create-food.dto';
 import { UpdateFoodDto } from './dto/update-food.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Food } from './entities/food.entity';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { validate as isUuid } from 'uuid';
+import { Food, FoodImage } from './entities';
 
 @Injectable()
 export class FoodsService {
   constructor(
     @InjectRepository(Food) private readonly foodRepository: Repository<Food>,
+    @InjectRepository(FoodImage)
+    private readonly foodImageRepository: Repository<FoodImage>,
   ) {}
   async create(createFoodDto: CreateFoodDto) {
+    const { food_image, ...restFood } = createFoodDto;
     try {
-      const newFood = this.foodRepository.create(createFoodDto);
+      const newFood = this.foodRepository.create({
+        ...restFood,
+        food_image: this.foodImageRepository.create({ url: food_image }),
+      });
       await this.foodRepository.save(newFood);
+      return { ...newFood, food_image };
     } catch (error) {
       console.log(error);
       throw new InternalServerErrorException('Something went wrong');
@@ -31,6 +38,7 @@ export class FoodsService {
     return await this.foodRepository.find({
       take: limit,
       skip: page,
+      relations: { food_image: true },
     });
   }
 
@@ -42,9 +50,10 @@ export class FoodsService {
       findedFood = await this.foodRepository.findOneBy({ id: param });
     } else {
       // Si no es un UUID, busca por food_name
-      const queryBuilder = this.foodRepository.createQueryBuilder();
+      const queryBuilder = this.foodRepository.createQueryBuilder('food');
       findedFood = await queryBuilder
         .where('food_name = :food_name', { food_name: param })
+        .leftJoinAndSelect('food.food_image', 'food_image')
         .getOne();
     }
 
@@ -58,6 +67,7 @@ export class FoodsService {
     const food = await this.foodRepository.preload({
       id,
       ...updateFoodDto,
+      food_image: null,
     });
 
     if (!food)
