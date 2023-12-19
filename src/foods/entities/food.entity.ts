@@ -1,7 +1,14 @@
-import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Restaurant } from 'src/restaurants/entities/restaurant.entity';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { FoodImage } from './food-image-entity';
 
-@Entity()
+@Entity({ name: 'foods' })
 export class Food {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -20,8 +27,11 @@ export class Food {
   })
   food_image?: FoodImage;
 
-  @Column('text')
-  restaurant: string;
+  @OneToOne(() => Restaurant, (restaurant) => restaurant.foods, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn()
+  restaurant: Restaurant;
 
   @Column('numeric', {
     default: 0,
