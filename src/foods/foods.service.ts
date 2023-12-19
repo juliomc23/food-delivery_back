@@ -6,7 +6,7 @@ import {
 import { CreateFoodDto } from './dto/create-food.dto';
 import { UpdateFoodDto } from './dto/update-food.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { validate as isUuid } from 'uuid';
 import { Food, FoodImage } from './entities';
@@ -17,6 +17,7 @@ export class FoodsService {
     @InjectRepository(Food) private readonly foodRepository: Repository<Food>,
     @InjectRepository(FoodImage)
     private readonly foodImageRepository: Repository<FoodImage>,
+    private readonly dataSource: DataSource,
   ) {}
   async create(createFoodDto: CreateFoodDto) {
     const { food_image, ...restFood } = createFoodDto;
@@ -64,17 +65,35 @@ export class FoodsService {
   }
 
   async update(id: string, updateFoodDto: UpdateFoodDto) {
+    const { food_image, ...restFood } = updateFoodDto;
+
     const food = await this.foodRepository.preload({
       id,
-      ...updateFoodDto,
-      food_image: null,
+      ...restFood,
     });
 
     if (!food)
       throw new NotFoundException(`The food with id: ${id} was not found`);
 
-    await this.foodRepository.save(food);
-    return food;
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      if (food_image) {
+        await queryRunner.manager.delete(FoodImage, { food: { id } });
+        food.food_image = this.foodImageRepository.create({ url: food_image });
+      }
+
+      await queryRunner.manager.save(food);
+      await queryRunner.commitTransaction();
+      await queryRunner.release();
+
+      return food;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      await queryRunner.release();
+    }
   }
 
   async remove(id: string) {
