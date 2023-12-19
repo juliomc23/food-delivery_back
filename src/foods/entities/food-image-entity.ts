@@ -15,7 +15,7 @@ export class FoodImage {
   @Column('text')
   url: string;
 
-  @OneToOne(() => Food, (food) => food.food_image)
+  @OneToOne(() => Food, (food) => food.food_image, { onDelete: 'CASCADE' })
   @JoinColumn()
   food: Food;
 }
