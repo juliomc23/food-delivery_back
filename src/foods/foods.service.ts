@@ -35,7 +35,7 @@ export class FoodsService {
   }
 
   async findAll(pagination: PaginationDto) {
-    const { limit = 7, page = 0 } = pagination;
+    const { limit = 10, page = 0 } = pagination;
     return await this.foodRepository.find({
       take: limit,
       skip: page,
