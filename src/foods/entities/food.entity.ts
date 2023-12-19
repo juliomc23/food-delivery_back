@@ -3,6 +3,7 @@ import {
   Column,
   Entity,
   JoinColumn,
+  ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -27,7 +28,7 @@ export class Food {
   })
   food_image?: FoodImage;
 
-  @OneToOne(() => Restaurant, (restaurant) => restaurant.foods, {
+  @ManyToOne(() => Restaurant, (restaurant) => restaurant.foods, {
     onDelete: 'CASCADE',
   })
   @JoinColumn()
