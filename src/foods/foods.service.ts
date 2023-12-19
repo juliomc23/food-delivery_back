@@ -10,6 +10,7 @@ import { DataSource, Repository } from 'typeorm';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { validate as isUuid } from 'uuid';
 import { Food, FoodImage } from './entities';
+import { Restaurant } from 'src/restaurants/entities/restaurant.entity';
 
 @Injectable()
 export class FoodsService {
@@ -17,14 +18,17 @@ export class FoodsService {
     @InjectRepository(Food) private readonly foodRepository: Repository<Food>,
     @InjectRepository(FoodImage)
     private readonly foodImageRepository: Repository<FoodImage>,
+    @InjectRepository(Restaurant)
+    private readonly restaurantRepository: Repository<Restaurant>,
     private readonly dataSource: DataSource,
   ) {}
   async create(createFoodDto: CreateFoodDto) {
-    const { food_image, ...restFood } = createFoodDto;
+    const { food_image, restaurant, ...restFood } = createFoodDto;
     try {
       const newFood = this.foodRepository.create({
         ...restFood,
         food_image: this.foodImageRepository.create({ url: food_image }),
+        restaurant: this.restaurantRepository.create({ name: restaurant }),
       });
       await this.foodRepository.save(newFood);
       return { ...newFood, food_image };
@@ -65,7 +69,7 @@ export class FoodsService {
   }
 
   async update(id: string, updateFoodDto: UpdateFoodDto) {
-    const { food_image, ...restFood } = updateFoodDto;
+    const { food_image, restaurant, ...restFood } = updateFoodDto;
 
     const food = await this.foodRepository.preload({
       id,
@@ -83,6 +87,13 @@ export class FoodsService {
       if (food_image) {
         await queryRunner.manager.delete(FoodImage, { food: { id } });
         food.food_image = this.foodImageRepository.create({ url: food_image });
+      }
+
+      if (restaurant) {
+        await queryRunner.manager.delete(Food, { restaurant: { id } });
+        food.restaurant = this.restaurantRepository.create({
+          name: restaurant,
+        });
       }
 
       await queryRunner.manager.save(food);
