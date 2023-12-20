@@ -6,7 +6,7 @@ export class Restaurant {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
+  @Column({ unique: true })
   name: string;
 
   @OneToMany(() => Food, (food) => food.restaurant, { cascade: true })
