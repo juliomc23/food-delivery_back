@@ -1,27 +1,20 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
-  Query,
+  Get,
+  Param,
   ParseUUIDPipe,
+  Patch,
+  Query,
 } from '@nestjs/common';
-import { FoodsService } from './foods.service';
-import { CreateFoodDto } from './dto/create-food.dto';
-import { UpdateFoodDto } from './dto/update-food.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { UpdateFoodDto } from './dto/update-food.dto';
+import { FoodsService } from './foods.service';
 
 @Controller('foods')
 export class FoodsController {
   constructor(private readonly foodsService: FoodsService) {}
-
-  @Post()
-  create(@Body() createFoodDto: CreateFoodDto) {
-    return this.foodsService.create(createFoodDto);
-  }
 
   @Get()
   findAll(@Query() paginationDto: PaginationDto) {

@@ -1,16 +1,11 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
-import { CreateFoodDto } from './dto/create-food.dto';
-import { UpdateFoodDto } from './dto/update-food.dto';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
-import { validate as isUuid } from 'uuid';
-import { Food, FoodImage } from './entities';
 import { Restaurant } from 'src/restaurants/entities/restaurant.entity';
+import { DataSource, Repository } from 'typeorm';
+import { validate as isUuid } from 'uuid';
+import { UpdateFoodDto } from './dto/update-food.dto';
+import { Food, FoodImage } from './entities';
 
 @Injectable()
 export class FoodsService {
@@ -22,21 +17,6 @@ export class FoodsService {
     private readonly restaurantRepository: Repository<Restaurant>,
     private readonly dataSource: DataSource,
   ) {}
-  async create(createFoodDto: CreateFoodDto) {
-    const { food_image, restaurant, ...restFood } = createFoodDto;
-    try {
-      const newFood = this.foodRepository.create({
-        ...restFood,
-        food_image: this.foodImageRepository.create({ url: food_image }),
-        restaurant: this.restaurantRepository.create({ name: restaurant }),
-      });
-      await this.foodRepository.save(newFood);
-      return { ...newFood, food_image };
-    } catch (error) {
-      console.log(error);
-      throw new InternalServerErrorException('Something went wrong');
-    }
-  }
 
   async findAll(pagination: PaginationDto) {
     const { limit = 10, page = 0 } = pagination;
@@ -69,7 +49,7 @@ export class FoodsService {
   }
 
   async update(id: string, updateFoodDto: UpdateFoodDto) {
-    const { food_image, restaurant, ...restFood } = updateFoodDto;
+    const { food_image, ...restFood } = updateFoodDto;
 
     const food = await this.foodRepository.preload({
       id,
@@ -87,13 +67,6 @@ export class FoodsService {
       if (food_image) {
         await queryRunner.manager.delete(FoodImage, { food: { id } });
         food.food_image = this.foodImageRepository.create({ url: food_image });
-      }
-
-      if (restaurant) {
-        await queryRunner.manager.delete(Food, { restaurant: { id } });
-        food.restaurant = this.restaurantRepository.create({
-          name: restaurant,
-        });
       }
 
       await queryRunner.manager.save(food);
