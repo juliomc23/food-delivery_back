@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Food, FoodImage } from 'src/foods/entities';
+import { Repository } from 'typeorm';
 import { CreateRestaurantDto } from './dto/create-restaurant.dto';
 import { UpdateRestaurantDto } from './dto/update-restaurant.dto';
-import { InjectRepository } from '@nestjs/typeorm';
 import { Restaurant } from './entities/restaurant.entity';
-import { Repository } from 'typeorm';
-import { Food } from 'src/foods/entities';
 
 @Injectable()
 export class RestaurantsService {
@@ -12,14 +12,22 @@ export class RestaurantsService {
     @InjectRepository(Restaurant)
     private readonly restaurantRepository: Repository<Restaurant>,
     @InjectRepository(Food) private readonly foodRepository: Repository<Food>,
+    @InjectRepository(FoodImage)
+    private readonly foodImageRepository: Repository<FoodImage>,
   ) {}
   async create(createRestaurantDto: CreateRestaurantDto) {
     const { foods, ...restRestaurantProperties } = createRestaurantDto;
     const restaurant = this.restaurantRepository.create({
       ...restRestaurantProperties,
-      foods: foods.map((food_name) =>
-        this.foodRepository.create({ food_name }),
-      ),
+      foods: foods.map((food) => {
+        console.log(food);
+        return this.foodRepository.create({
+          ...food,
+          food_image: this.foodImageRepository.create({
+            url: food.food_image.url,
+          }),
+        });
+      }),
     });
 
     await this.restaurantRepository.save(restaurant);
@@ -35,6 +43,7 @@ export class RestaurantsService {
   }
 
   update(id: number, updateRestaurantDto: UpdateRestaurantDto) {
+    console.log(updateRestaurantDto);
     return `This action updates a #${id} restaurant`;
   }
 
