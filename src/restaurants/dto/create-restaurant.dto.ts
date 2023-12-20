@@ -5,15 +5,16 @@ import {
   IsString,
   MinLength,
 } from 'class-validator';
+import { Food } from 'src/foods/entities';
 
 export class CreateRestaurantDto {
   @IsString()
   @MinLength(4)
   name: string;
 
-  @IsString({ each: true })
+  // @IsString({ each: true })
   @IsArray()
-  foods: string[];
+  foods: Food[];
 
   @IsString()
   @IsOptional()
