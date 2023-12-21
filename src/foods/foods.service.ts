@@ -1,7 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
-import { Restaurant } from 'src/restaurants/entities/restaurant.entity';
 import { DataSource, Repository } from 'typeorm';
 import { validate as isUuid } from 'uuid';
 import { UpdateFoodDto } from './dto/update-food.dto';
@@ -13,8 +12,6 @@ export class FoodsService {
     @InjectRepository(Food) private readonly foodRepository: Repository<Food>,
     @InjectRepository(FoodImage)
     private readonly foodImageRepository: Repository<FoodImage>,
-    @InjectRepository(Restaurant)
-    private readonly restaurantRepository: Repository<Restaurant>,
     private readonly dataSource: DataSource,
   ) {}
 
