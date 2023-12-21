@@ -12,6 +12,8 @@ export class User {
   email: string;
   @Column({ type: 'text' })
   password: string;
+  @Column({ type: 'numeric' })
+  phoneNumber: number;
   @Column({ type: 'text' })
   birthdate: string;
   @Column({ type: 'boolean' })
