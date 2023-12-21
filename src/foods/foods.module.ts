@@ -8,5 +8,6 @@ import { FoodsService } from './foods.service';
   imports: [TypeOrmModule.forFeature([Food, FoodImage])],
   controllers: [FoodsController],
   providers: [FoodsService],
+  exports: [TypeOrmModule],
 })
 export class FoodsModule {}
