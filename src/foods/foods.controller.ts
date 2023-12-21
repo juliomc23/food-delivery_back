@@ -16,6 +16,8 @@ import { FoodsService } from './foods.service';
 export class FoodsController {
   constructor(private readonly foodsService: FoodsService) {}
 
+  // TODO: we need to create post method to create food who requires restaurant_id from body
+
   @Get()
   findAll(@Query() paginationDto: PaginationDto) {
     return this.foodsService.findAll(paginationDto);
