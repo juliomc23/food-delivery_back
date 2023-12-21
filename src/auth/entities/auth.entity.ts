@@ -12,11 +12,11 @@ export class User {
   email: string;
   @Column({ type: 'text' })
   password: string;
-  @Column({ type: 'numeric' })
-  phoneNumber: number;
+  @Column({ type: 'text' })
+  phoneNumber: string;
   @Column({ type: 'text' })
   birthdate: string;
-  @Column({ type: 'boolean' })
+  @Column({ type: 'boolean', default: true })
   isActive: boolean;
   @Column({ type: 'text', array: true, default: ['user'] })
   roles: string[];

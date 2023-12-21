@@ -17,7 +17,7 @@ export class SignUpDto {
   @IsISO8601()
   birthdate: string;
   @IsPhoneNumber()
-  phoneNumber: number;
+  phoneNumber: string;
   @IsEmail()
   email: string;
   @IsStrongPassword()
