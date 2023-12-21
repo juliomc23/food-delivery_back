@@ -20,7 +20,6 @@ export class RestaurantsService {
     const restaurant = this.restaurantRepository.create({
       ...restRestaurantProperties,
       foods: foods.map((food) => {
-        console.log(food);
         return this.foodRepository.create({
           ...food,
           food_image: this.foodImageRepository.create({
