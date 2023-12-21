@@ -2,6 +2,7 @@ import {
   ConflictException,
   Injectable,
   InternalServerErrorException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { SignUpDto } from './dto/signup.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -32,7 +33,19 @@ export class AuthService {
   }
 
   async login(loginDto: LoginDto) {
-    return loginDto;
+    const user = await this.userRepository.findOne({
+      where: { email: loginDto.email },
+      select: { email: true, password: true },
+    });
+
+    if (!user) throw new UnauthorizedException('Email or password invalid');
+
+    const validPassword = bcrypt.compareSync(loginDto.password, user.password);
+
+    if (!validPassword)
+      throw new UnauthorizedException('Email or password invalid');
+
+    return user;
   }
 
   private handleDbErrors(error: any): void {
