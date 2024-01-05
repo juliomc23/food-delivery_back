@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { CreateRestaurantDto } from './dto/create-restaurant.dto';
 import { UpdateRestaurantDto } from './dto/update-restaurant.dto';
 import { Restaurant } from './entities/restaurant.entity';
+import { User } from 'src/auth/entities/auth.entity';
 
 @Injectable()
 export class RestaurantsService {
@@ -15,22 +16,26 @@ export class RestaurantsService {
     @InjectRepository(FoodImage)
     private readonly foodImageRepository: Repository<FoodImage>,
   ) {}
-  async create(createRestaurantDto: CreateRestaurantDto) {
+  async create(createRestaurantDto: CreateRestaurantDto, user: User) {
     const { foods, ...restRestaurantProperties } = createRestaurantDto;
     const restaurant = this.restaurantRepository.create({
       ...restRestaurantProperties,
       foods: foods.map((food) => {
+        // Crea siempre una entidad FoodImage
+        const foodImageEntity = this.foodImageRepository.create({
+          url: food.food_image?.url || null, // Asigna la URL si existe, de lo contrario asigna null
+        });
+
         return this.foodRepository.create({
           ...food,
-          food_image: this.foodImageRepository.create({
-            url: food.food_image.url,
-          }),
+          food_image: foodImageEntity,
         });
       }),
+      user,
     });
 
     await this.restaurantRepository.save(restaurant);
-    return 'This action adds a new restaurant';
+    return restaurant;
   }
 
   findAll() {

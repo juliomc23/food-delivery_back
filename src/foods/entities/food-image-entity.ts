@@ -12,8 +12,8 @@ export class FoodImage {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column('text')
-  url: string;
+  @Column('text', { nullable: true })
+  url?: string;
 
   @OneToOne(() => Food, (food) => food.food_image, { onDelete: 'CASCADE' })
   @JoinColumn()

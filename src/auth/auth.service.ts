@@ -10,11 +10,16 @@ import { User } from './entities/auth.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { LoginDto } from './dto/login.dto';
+import { JwtPayload } from './interfaces/jwt-payload.interface';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
   ) {}
 
   async create(signupDto: SignUpDto) {
@@ -26,7 +31,11 @@ export class AuthService {
       });
       await this.userRepository.save(user);
 
-      return user;
+      const { accessToken, refreshToken } = this.generateJwtTokens({
+        id: user.id,
+      });
+
+      return { accessToken, refreshToken };
     } catch (error) {
       this.handleDbErrors(error);
     }
@@ -35,7 +44,7 @@ export class AuthService {
   async login(loginDto: LoginDto) {
     const user = await this.userRepository.findOne({
       where: { email: loginDto.email },
-      select: { email: true, password: true },
+      select: { id: true, email: true, password: true },
     });
 
     if (!user) throw new UnauthorizedException('Email or password invalid');
@@ -45,7 +54,11 @@ export class AuthService {
     if (!validPassword)
       throw new UnauthorizedException('Email or password invalid');
 
-    return user;
+    const { accessToken, refreshToken } = this.generateJwtTokens({
+      id: user.id,
+    });
+
+    return { accessToken, refreshToken };
   }
 
   private handleDbErrors(error: any): void {
@@ -61,5 +74,17 @@ export class AuthService {
     const salt = bcrypt.genSaltSync();
     const hashedPassword = bcrypt.hashSync(password, salt);
     return hashedPassword;
+  }
+
+  private generateJwtTokens(payload: JwtPayload) {
+    const accessToken = this.jwtService.sign(payload);
+    const refreshToken = this.jwtService.sign(payload, {
+      expiresIn: '7d',
+      secret: this.configService.get('JWT_REFRESHTOKEN_SECRET'),
+    });
+    return {
+      accessToken,
+      refreshToken,
+    };
   }
 }
